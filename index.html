@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="meta-title">Hermes AI Agent — Satu Command Langsung Jalan</title>
+  <meta name="description" id="meta-desc" content="Beli file Hermes Agent, satu command langsung jalan. Tersedia 3 paket: Basic, Pro, Expert.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #080c18;
+      color: #e2e8f0;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    #particle-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 0; pointer-events: none;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.1; }
+    h2 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #f0f4ff 0%, #60a5fa 50%, #3b82f6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    h3 { font-size: clamp(1.2rem, 2.5vw, 1.6rem); }
+
+    .subhead {
+      font-size: 1.1rem;
+      color: #94a3b8;
+      max-width: 600px;
+      margin: 0.75rem auto 0;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* ----- NAV ----- */
+    nav {
+      position: fixed; top: 0; left: 0; width: 100%; z-index: 100;
+      background: rgba(8, 12, 24, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(59, 130, 246, 0.12);
+      transition: box-shadow 0.3s;
+    }
+    nav.scrolled { box-shadow: 0 2px 32px rgba(59, 130, 246, 0.06); }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem; font-weight: 700;
+      letter-spacing: -0.04em;
+      display: flex; align-items: center; gap: 0.5rem;
+      color: #e2e8f0;
+    }
+    .logo-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+      color: #fff; border-radius: 8px;
+      font-size: 0.85rem; font-weight: 800;
+      box-shadow: 0 0 16px rgba(59, 130, 246, 0.3);
+    }
+    .logo span { color: #64748b; font-weight: 400; }
+    .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-links { display: flex; gap: 2rem; align-items: center; list-style: none; }
+    .nav-links a {
+      text-decoration: none; color: #94a3b8;
+      font-size: 0.9rem; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #60a5fa; }
+    .nav-cta {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff !important;
+      padding: 0.5rem 1.25rem; border-radius: 8px;
+      font-weight: 600 !important;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+      transition: all 0.25s !important;
+    }
+    .nav-cta:hover {
+      box-shadow: 0 0 32px rgba(59, 130, 246, 0.4) !important;
+      transform: translateY(-1px);
+      background: linear-gradient(135deg, #60a5fa, #3b82f6) !important;
+    }
+
+    /* ----- LANG SWITCHER ----- */
+    .lang-switcher { display: flex; gap: 3px; }
+    .lang-btn {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.7rem; font-weight: 600;
+      padding: 0.25rem 0.45rem; border-radius: 6px;
+      background: transparent; color: #475569;
+      border: 1px solid rgba(59,130,246,0.1);
+      cursor: pointer; transition: all 0.2s;
+      letter-spacing: 0.03em;
+    }
+    .lang-btn:hover { color: #94a3b8; border-color: rgba(59,130,246,0.2); }
+    .lang-btn.active { background: rgba(59,130,246,0.15); color: #60a5fa; border-color: rgba(59,130,246,0.3); }
+
+    /* ----- HERO ----- */
+    .hero {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; align-items: center; text-align: center;
+      padding: 7rem 0 4rem;
+    }
+    .hero-badge {
+      display: inline-block;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      border-radius: 100px;
+      padding: 0.35rem 1rem; margin-bottom: 1.5rem;
+    }
+    .hero h1 { margin-bottom: 1rem; color: #f0f4ff; -webkit-text-fill-color: #f0f4ff; background: none; }
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, #60a5fa, #a78bfa, #60a5fa);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero h1 .command-block {
+      display: inline-block;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 8px;
+      padding: 0.15rem 0.6rem;
+      font-size: 0.55em;
+      font-family: 'Space Grotesk', monospace;
+      color: #60a5fa;
+      vertical-align: middle;
+      -webkit-text-fill-color: #60a5fa;
+    }
+    .hero p {
+      font-size: 1.15rem; color: #94a3b8;
+      max-width: 560px; margin: 0 auto 2rem;
+    }
+    .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem; font-weight: 600;
+      padding: 0.85rem 2rem; border-radius: 10px;
+      text-decoration: none; cursor: pointer; border: none;
+      transition: all 0.25s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      box-shadow: 0 0 24px rgba(59, 130, 246, 0.25);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.45);
+    }
+    .btn-outline {
+      background: transparent; color: #60a5fa;
+      border: 1.5px solid rgba(59, 130, 246, 0.4);
+    }
+    .btn-outline:hover {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: #60a5fa;
+      transform: translateY(-2px);
+    }
+    .btn-glow {
+      background: transparent;
+      color: #60a5fa;
+      border: 1.5px solid rgba(59, 130, 246, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-glow::before {
+      content: '';
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      background: linear-gradient(45deg, #3b82f6, #a78bfa, #3b82f6);
+      border-radius: 12px;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .btn-glow:hover::before { opacity: 1; }
+    .btn-glow:hover { border-color: transparent; color: #fff; }
+
+    .hero-stats {
+      display: flex; gap: 3rem; justify-content: center;
+      margin-top: 3rem; padding-top: 2rem;
+      border-top: 1px solid rgba(59, 130, 246, 0.12);
+    }
+    .stat-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.8rem; font-weight: 700; color: #60a5fa;
+    }
+    .stat-label { font-size: 0.85rem; color: #64748b; }
+
+    /* ----- HOW IT WORKS ----- */
+    #how {
+      position: relative; z-index: 1;
+      padding: 6rem 0;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      counter-reset: step;
+    }
+    .step-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(59, 130, 246, 0.12);
+      border-radius: 14px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      backdrop-filter: blur(4px);
+      position: relative;
+      transition: all 0.35s;
+    }
+    .step-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(59, 130, 246, 0.35);
+      box-shadow: 0 12px 40px rgba(59, 130, 246, 0.08);
+    }
+    .step-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: rgba(59, 130, 246, 0.15);
+      line-height: 1;
+      margin-bottom: 0.75rem;
+    }
+    .step-card h3 {
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+      color: #f0f4ff;
+    }
+    .step-card p {
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+    .step-arrow {
+      position: absolute;
+      right: -0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(59, 130, 246, 0.2);
+      width: 20px;
+      height: 20px;
+    }
+    .step-card:last-child .step-arrow { display: none; }
+
+    /* ----- ONE-COMMAND DEMO ----- */
+    .cmd-demo {
+      margin-top: 3rem;
+      text-align: center;
+    }
+    .cmd-box {
+      display: inline-block;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 12px;
+      padding: 1.25rem 2rem;
+      font-family: 'Space Grotesk', monospace;
+      font-size: 1.1rem;
+      color: #60a5fa;
+      position: relative;
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.06);
+    }
+    .cmd-box .prompt { color: #64748b; }
+    .cmd-box .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 1.1em;
+      background: #60a5fa;
+      animation: blink 1s step-end infinite;
+      vertical-align: text-bottom;
+      margin-left: 2px;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .cmd-label {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-top: 1rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ----- SECTION ----- */
+    section { position: relative; z-index: 1; padding: 6rem 0; }
+    .section-label {
+      display: inline-block;
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 100px;
+      padding: 0.3rem 0.85rem; margin-bottom: 1rem;
+    }
+    .section-header { text-align: center; margin-bottom: 4rem; }
+
+    /* ----- FEATURES ----- */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+    .feature-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(59, 130, 246, 0.12);
+      border-radius: 14px;
+      padding: 2rem;
+      transition: all 0.35s;
+      backdrop-filter: blur(4px);
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 3px;
+      background: linear-gradient(90deg, #3b82f6, #a78bfa, #3b82f6);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(59, 130, 246, 0.35);
+      box-shadow: 0 12px 48px rgba(59, 130, 246, 0.08);
+    }
+    .feature-icon {
+      width: 44px; height: 44px;
+      background: rgba(59, 130, 246, 0.12);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.25rem;
+      color: #60a5fa;
+    }
+    .feature-icon svg { width: 22px; height: 22px; }
+    .feature-card h3 { margin-bottom: 0.5rem; color: #f0f4ff; }
+    .feature-card p { font-size: 0.95rem; color: #94a3b8; }
+
+    /* ----- PRICING ----- */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .pricing-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(59, 130, 246, 0.12);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      transition: all 0.35s;
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+    }
+    .pricing-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(59, 130, 246, 0.3);
+      box-shadow: 0 16px 56px rgba(59, 130, 246, 0.1);
+    }
+    .pricing-card.featured {
+      border-color: rgba(59, 130, 246, 0.4);
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3), 0 8px 40px rgba(59, 130, 246, 0.12);
+      transform: scale(1.02);
+    }
+    .pricing-card.featured:hover {
+      transform: scale(1.02) translateY(-6px);
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5), 0 16px 56px rgba(59, 130, 246, 0.18);
+    }
+    .pricing-card.featured .pricing-badge {
+      display: inline-block;
+      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      padding: 0.3rem 0.85rem; border-radius: 100px;
+      margin-bottom: 1rem;
+    }
+    .pricing-card:not(.featured) .pricing-badge {
+      display: inline-block;
+      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #475569;
+      border: 1px solid rgba(59, 130, 246, 0.12);
+      padding: 0.3rem 0.85rem; border-radius: 100px;
+      margin-bottom: 1rem;
+      visibility: hidden;
+    }
+    .pricing-tier {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem; font-weight: 700;
+      margin-bottom: 0.25rem; color: #f0f4ff;
+    }
+    .pricing-desc {
+      font-size: 0.9rem; color: #94a3b8;
+      margin-bottom: 1.5rem; min-height: 2.8em;
+    }
+    .pricing-amount {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3rem; font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.25rem; color: #60a5fa;
+    }
+    .pricing-amount .currency { font-size: 1.2rem; vertical-align: super; font-weight: 600; }
+    .pricing-period { font-size: 0.85rem; color: #64748b; margin-bottom: 1.75rem; }
+    .pricing-features { list-style: none; text-align: left; margin-bottom: 2rem; flex: 1; }
+    .pricing-features li {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-size: 0.9rem; padding: 0.5rem 0;
+      color: #cbd5e1;
+      border-bottom: 1px solid rgba(59, 130, 246, 0.06);
+    }
+    .pricing-features li:last-child { border-bottom: none; }
+    .pricing-features li svg { width: 16px; height: 16px; color: #3b82f6; flex-shrink: 0; }
+    .pricing-card .btn { width: 100%; justify-content: center; }
+    .pricing-card.featured .btn {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    }
+    .pricing-card.featured .btn:hover {
+      box-shadow: 0 0 36px rgba(59, 130, 246, 0.4);
+      transform: translateY(-2px);
+    }
+    .pricing-card:not(.featured) .btn {
+      background: rgba(59, 130, 246, 0.1);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+    .pricing-card:not(.featured) .btn:hover {
+      background: rgba(59, 130, 246, 0.18);
+      transform: translateY(-2px);
+    }
+
+    /* ----- PACKAGE TAG ----- */
+    .package-tag {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-family: 'Space Grotesk', monospace;
+      letter-spacing: 0.02em;
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.15);
+      border-radius: 4px;
+      padding: 0.15rem 0.45rem;
+      color: #60a5fa;
+      margin-left: 0.25rem;
+    }
+
+    /* ----- CTA ----- */
+    .cta-section {
+      text-align: center;
+      background: rgba(15, 23, 42, 0.4);
+      border-top: 1px solid rgba(59, 130, 246, 0.08);
+      border-bottom: 1px solid rgba(59, 130, 246, 0.08);
+    }
+    .cta-section h2 { margin-bottom: 0.75rem; }
+    .cta-section p { color: #94a3b8; max-width: 480px; margin: 0 auto 2rem; }
+    .cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .cta-section .btn-outline { border-color: rgba(59, 130, 246, 0.3); }
+
+    /* ----- FILES TAG ----- */
+    .files-note {
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+    .files-note svg {
+      width: 14px; height: 14px;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 0.3rem;
+    }
+
+    /* ----- FOOTER ----- */
+    footer {
+      position: relative; z-index: 1;
+      padding: 2.5rem 0;
+      border-top: 1px solid rgba(59, 130, 246, 0.06);
+      text-align: center;
+      font-size: 0.85rem; color: #475569;
+    }
+    footer span { color: #60a5fa; font-weight: 600; }
+
+    /* ----- SCROLL REVEAL ----- */
+    .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-scale { opacity: 0; transform: scale(0.92); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal-scale.visible { opacity: 1; transform: scale(1); }
+    .stagger-1 { transition-delay: 0.1s; }
+    .stagger-2 { transition-delay: 0.2s; }
+    .stagger-3 { transition-delay: 0.3s; }
+    .stagger-4 { transition-delay: 0.4s; }
+
+    /* ----- AMBIENT ----- */
+    .ambient-glow {
+      position: fixed;
+      top: -30vh; right: -10vw;
+      width: 60vw; height: 60vw;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.04) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    .ambient-glow-2 {
+      position: fixed;
+      bottom: -20vh; left: -10vw;
+      width: 50vw; height: 50vw;
+      background: radial-gradient(circle, rgba(167, 139, 250, 0.03) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    @media (max-width: 900px) {
+      .steps { grid-template-columns: repeat(2, 1fr); }
+      .step-arrow { display: none; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+      .pricing-card.featured { transform: none; }
+      .pricing-card.featured:hover { transform: translateY(-6px); }
+      .hero-stats { gap: 1.5rem; flex-wrap: wrap; }
+      .nav-links { display: none; }
+      .nav-right { gap: 0.75rem; }
+    }
+    @media (max-width: 600px) {
+      section { padding: 4rem 0; }
+      .steps { grid-template-columns: 1fr; }
+      .hero-stats { gap: 1rem; }
+    }
+  /* ----- MODAL FORM ----- */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(8, 12, 24, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      display: none;
+      align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 16px;
+      padding: 2.5rem;
+      width: 100%; max-width: 440px;
+      position: relative;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+    }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: rgba(59, 130, 246, 0.1);
+      border: none; color: #94a3b8;
+      width: 32px; height: 32px; border-radius: 8px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .modal-close:hover { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .modal h3 {
+      font-size: 1.3rem; margin-bottom: 0.25rem;
+      background: linear-gradient(135deg, #f0f4ff 0%, #60a5fa 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .modal .modal-sub {
+      font-size: 0.85rem; color: #64748b;
+      margin-bottom: 1.5rem;
+    }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem; font-weight: 600;
+      color: #94a3b8; margin-bottom: 0.35rem;
+      letter-spacing: 0.03em;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      background: rgba(8, 12, 24, 0.6);
+      border: 1px solid rgba(59, 130, 246, 0.15);
+      border-radius: 8px;
+      padding: 0.7rem 0.9rem;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: rgba(59, 130, 246, 0.4);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.06);
+    }
+    .form-group select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2360a5fa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.7rem center;
+      padding-right: 2.2rem;
+    }
+    .form-group select option { background: #0f172a; color: #e2e8f0; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .btn-submit {
+      width: 100%; justify-content: center;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    }
+    .btn-submit:hover {
+      box-shadow: 0 0 36px rgba(59, 130, 246, 0.4);
+      transform: translateY(-2px);
+    }
+    .btn-submit:disabled {
+      opacity: 0.5; cursor: not-allowed;
+      transform: none !important;
+    }
+    .form-success {
+      text-align: center; padding: 2rem 0;
+      display: none;
+    }
+    .form-success.active { display: block; }
+    .form-success svg {
+      width: 48px; height: 48px;
+      color: #3b82f6; margin-bottom: 1rem;
+    }
+    .form-success h4 {
+      font-size: 1.2rem; color: #f0f4ff;
+      margin-bottom: 0.5rem;
+    }
+    .form-success p {
+      font-size: 0.9rem; color: #94a3b8;
+    }
+    .form-body.hidden { display: none; }
+    .spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+  <div class="ambient-glow-2"></div>
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <div class="container">
+      <div class="nav-inner">
+        <div class="logo">
+          <span class="logo-icon">H</span>
+          Hermes <span>Agent</span>
+        </div>
+        <div class="nav-right">
+          <ul class="nav-links">
+            <li><a href="#how" data-i18n="nav-how">Cara Kerja</a></li>
+            <li><a href="#features" data-i18n="nav-features">Fitur</a></li>
+            <li><a href="#pricing" data-i18n="nav-pricing">Harga</a></li>
+            <li><a href="#cta" class="nav-cta" data-i18n="nav-cta" onclick="event.preventDefault();openModal('')">Beli Sekarang</a></li>
+          </ul>
+          <div class="lang-switcher">
+            <button class="lang-btn active" data-lang="id" title="Indonesia">ID</button>
+            <button class="lang-btn" data-lang="en" title="English">EN</button>
+            <button class="lang-btn" data-lang="zh" title="中文">中文</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero grid-bg">
+    <div class="container">
+      <div class="reveal visible">
+        <span class="hero-badge" data-i18n="hero-badge">✦ AI Agent File — One Command</span>
+      </div>
+      <h1 class="reveal visible stagger-1">
+        <span data-i18n="hero-line1">Satu Command,</span><br>
+        <span class="highlight" data-i18n="hero-line2">Langsung Jalan</span>
+      </h1>
+      <p class="reveal visible stagger-2" data-i18n="hero-sub">
+        Anda membeli file Hermes Agent sesuai paket, cukup jalankan <strong>satu perintah</strong> di terminal. 
+        Install, config, siap pakai. Tidak perlu paham coding, tidak perlu setup manual.
+      </p>
+      <div class="hero-actions reveal visible stagger-3">
+        <a href="#pricing" class="btn btn-primary">
+          <span data-i18n="hero-btn-plans">Lihat Paket</span>
+          <i data-lucide="arrow-down" style="width:18px;height:18px;"></i>
+        </a>
+        <a href="#how" class="btn btn-outline" data-i18n="hero-btn-how">
+          Cara Kerja
+        </a>
+      </div>
+      <div class="hero-stats reveal visible stagger-4">
+        <div>
+          <div class="stat-num">3</div>
+          <div class="stat-label" data-i18n="hero-stat1">Level Paket</div>
+        </div>
+        <div>
+          <div class="stat-num">1</div>
+          <div class="stat-label" data-i18n="hero-stat2">Perintah</div>
+        </div>
+        <div>
+          <div class="stat-num">5<span class="hero-stat-unit" data-i18n="hero-stat3-unit"> menit</span></div>
+          <div class="stat-label" data-i18n="hero-stat3">Sampai Jalan</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="container">
+      <div class="section-header">
+        <div class="reveal"><span class="section-label" data-i18n="how-label">✦ Cara Kerja</span></div>
+        <h2 class="reveal stagger-1" data-i18n="how-title">Beli Sekali Langsung Jadi</h2>
+        <p class="subhead reveal stagger-2" data-i18n="how-sub">File dikirim langsung dalam bentuk ZIP. Tidak perlu jasa instalasi tambahan.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step-card reveal stagger-1">
+          <div class="step-num">01</div>
+          <h3 data-i18n="how-step1-title">Pilih Paket</h3>
+          <p data-i18n="how-step1-desc">Basic, Pro, atau Expert, sesuai kebutuhan Anda.</p>
+          <i data-lucide="chevron-right" class="step-arrow" style="width:18px;height:18px;"></i>
+        </div>
+        <div class="step-card reveal stagger-2">
+          <div class="step-num">02</div>
+          <h3 data-i18n="how-step2-title">Transfer & Konfirm</h3>
+          <p data-i18n="how-step2-desc">Bayar sesuai paket, kirim bukti pembayaran. File akan dikirim sesuai pesanan Anda.</p>
+          <i data-lucide="chevron-right" class="step-arrow" style="width:18px;height:18px;"></i>
+        </div>
+        <div class="step-card reveal stagger-3">
+          <div class="step-num">03</div>
+          <h3 data-i18n="how-step3-title">Terima File</h3>
+          <p data-i18n="how-step3-desc">File ZIP dan instruksi dikirim. Anda ekstrak di VPS atau server Anda.</p>
+          <i data-lucide="chevron-right" class="step-arrow" style="width:18px;height:18px;"></i>
+        </div>
+        <div class="step-card reveal stagger-4">
+          <div class="step-num">04</div>
+          <h3 data-i18n="how-step4-title">Jalankan 1 Command</h3>
+          <p data-i18n="how-step4-desc">Copy paste satu perintah di terminal, otomatis install dan siap digunakan.</p>
+        </div>
+      </div>
+
+      <div class="cmd-demo reveal">
+        <div class="cmd-box">
+          <span class="prompt">$</span> bash install-hermes.sh
+          <span class="cursor"></span>
+        </div>
+        <span class="cmd-label" data-i18n="cmd-label">⬆ Hanya satu baris, tidak ada langkah lain</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="grid-bg">
+    <div class="container">
+      <div class="section-header">
+        <div class="reveal"><span class="section-label" data-i18n="features-label">✦ Yang Anda Dapatkan</span></div>
+        <h2 class="reveal stagger-1" data-i18n="features-title">File Lengkap dengan Config Optimal</h2>
+        <p class="subhead reveal stagger-2" data-i18n="features-sub">File sudah di setup sesuai paket. Tinggal jalankan, langsung berfungsi.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card reveal stagger-1">
+          <div class="feature-icon" data-lucide="download"></div>
+          <h3 data-i18n="feat1-title">File Siap Ekstrak</h3>
+          <p data-i18n="feat1-desc">Satu file ZIP berisi script install, config YAML, skill preset, wallet template.</p>
+        </div>
+        <div class="feature-card reveal stagger-2">
+          <div class="feature-icon" data-lucide="terminal"></div>
+          <h3 data-i18n="feat2-title">One-Command Installer</h3>
+          <p data-i18n="feat2-desc">Auto-detect OS, install dependensi, setup Hermes, apply config, semua otomatis.</p>
+        </div>
+        <div class="feature-card reveal stagger-3">
+          <div class="feature-icon" data-lucide="sliders"></div>
+          <h3 data-i18n="feat3-title">Config Pre-Set</h3>
+          <p data-i18n="feat3-desc">Sudah di tuning sesuai paket. Provider cascade, skill router, spend governor langsung aktif.</p>
+        </div>
+        <div class="feature-card reveal stagger-1">
+          <div class="feature-icon" data-lucide="file-text"></div>
+          <h3 data-i18n="feat4-title">Dokumentasi Minimal</h3>
+          <p data-i18n="feat4-desc">Tidak perlu baca dokumentasi panjang. 1 halaman README cukup untuk memulai.</p>
+        </div>
+        <div class="feature-card reveal stagger-2">
+          <div class="feature-icon" data-lucide="refresh-cw"></div>
+          <h3 data-i18n="feat5-title">Update Support</h3>
+          <p data-i18n="feat5-desc">Ada versi baru? File akan dikirim ulang, tinggal jalankan script update.</p>
+        </div>
+        <div class="feature-card reveal stagger-3">
+          <div class="feature-icon" data-lucide="headphones"></div>
+          <h3 data-i18n="feat6-title">Chat Support</h3>
+          <p data-i18n="feat6-desc">Ada kendala? Silakan hubungi kami untuk bantuan debug.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <div class="container">
+      <div class="section-header">
+        <div class="reveal"><span class="section-label" data-i18n="pricing-label">✦ Pilih Paket</span></div>
+        <h2 class="reveal stagger-1" data-i18n="pricing-title">Beli File, Jalankan, Selesai</h2>
+        <p class="subhead reveal stagger-2" data-i18n="pricing-sub">Makin tinggi level, makin lengkap fitur yang aktif dalam 1 command.</p>
+      </div>
+
+      <div class="pricing-grid">
+
+        <!-- BASIC -->
+        <div class="pricing-card reveal stagger-1">
+          <span class="pricing-badge">—</span>
+          <div class="pricing-tier">Basic</div>
+          <div class="pricing-desc" data-i18n="pricing-basic-desc">File installer dan konfigurasi standar.<br>Langsung jalan, tinggal pakai.</div>
+          <div class="pricing-amount"><span class="currency">$</span>10</div>
+          <div class="pricing-period" data-i18n="pricing-period">sekali beli — file dikirim</div>
+          <ul class="pricing-features">
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-basic-f1">Hermes Agent installer script</span></li>
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-basic-f2">1 provider RPC</span> <span class="package-tag">.env</span></li>
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-basic-f3">Console-only config</span></li>
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-basic-f4">1 skill preset</span> <span class="package-tag">.yaml</span></li>
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-basic-f5">README minimal</span></li>
+          </ul>
+          <button onclick="openModal('Basic')" class="btn" data-i18n="pricing-btn-basic">Beli Basic</button>
+        </div>
+
+        <!-- PRO -->
+        <div class="pricing-card featured reveal stagger-2">
+          <span class="pricing-badge">★ Best Value</span>
+          <div class="pricing-tier">Pro</div>
+          <div class="pricing-desc" data-i18n="pricing-pro-desc">File dengan config pro. Agent nurut,<br>terbatas sesuai kebutuhan, cocok untuk power user.</div>
+          <div class="pricing-amount"><span class="currency">$</span>20</div>
+          <div class="pricing-period" data-i18n="pricing-period">sekali beli — file dikirim</div>
+          <ul class="pricing-features">
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-pro-f1">Semua Basic +</span></li>
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-pro-f2">Multi-provider cascade</span> <span class="package-tag">config.yaml</span></li>
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-pro-f3">Telegram setup</span></li>
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-pro-f4">5 skill preset</span> <span class="package-tag">skills/</span></li>
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-pro-f6">Wallet integration (read)</span> <span class="package-tag">.env</span></li>
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-pro-f7">Priority support</span></li>
+          </ul>
+          <button onclick="openModal('Pro')" class="btn" data-i18n="pricing-btn-pro">Beli Pro</button>
+        </div>
+
+        <!-- EXPERT -->
+        <div class="pricing-card reveal stagger-3">
+          <span class="pricing-badge">—</span>
+          <div class="pricing-tier">Expert</div>
+          <div class="pricing-desc" data-i18n="pricing-expert-desc">File full obedience.<br>Agent sepenuhnya mengikuti Anda.</div>
+          <div class="pricing-amount"><span class="currency">$</span>50</div>
+          <div class="pricing-period" data-i18n="pricing-period">sekali beli — file dikirim</div>
+          <ul class="pricing-features">
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-expert-f1">Semua Pro +</span></li>
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-expert-f2">Full provider access</span></li>
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-expert-f4">Unlimited skills</span></li>
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-expert-f5">Unlimited cron jobs</span></li>
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-expert-f6">Wallet ops (sign + TX)</span></li>
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-expert-f7">Custom skill dev</span> <span class="package-tag">custom/</span></li>
+            <li><i data-lucide="check"></i> <span data-i18n="pricing-expert-f8">White-glove support</span></li>
+          </ul>
+          <button onclick="openModal('Expert')" class="btn" data-i18n="pricing-btn-expert">Beli Expert</button>
+        </div>
+
+      </div>
+
+      <div class="files-note reveal">
+        <i data-lucide="package" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px;"></i>
+        <span data-i18n="pricing-note">Setiap paket berisi file ZIP siap ekstrak. Tidak ada biaya tersembunyi. Tidak perlu setup tambahan.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta" class="cta-section">
+    <div class="container">
+      <div class="reveal">
+        <span class="section-label" data-i18n="cta-label">✦ Tertarik?</span>
+      </div>
+      <h2 class="reveal stagger-1" data-i18n="cta-title">Ambil Paket Anda</h2>
+      <p class="reveal stagger-2" data-i18n="cta-sub">Transfer sesuai paket, konfirmasi ke email. File akan dikirim dalam 1x24 jam.</p>
+      <div class="cta-actions reveal stagger-3">
+        <button onclick="openModal('')" class="btn btn-primary" data-i18n="cta-btn-order">
+          <i data-lucide="shopping-cart" style="width:18px;height:18px;"></i>
+          Pesan Sekarang
+        </button>
+        <a href="#pricing" class="btn btn-outline">
+          <i data-lucide="refresh-cw" style="width:18px;height:18px;"></i>
+          <span data-i18n="cta-btn-plans">Pilih Paket</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <span data-i18n="footer">© 2026 Hermes Agent — File siap pakai, satu command langsung jalan.</span>
+    </div>
+  </footer>
+
+  <!-- MODAL FORM -->
+  <div class="modal-overlay" id="orderModal" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">
+        <i data-lucide="x" style="width:18px;height:18px;"></i>
+      </button>
+      <div class="form-body" id="formBody">
+        <h3 id="modalTitle" data-i18n="modal-title">Pesan Hermes Agent</h3>
+        <p class="modal-sub" data-i18n="modal-sub">Isi data kamu, kami akan kirim detail pembayaran dan file.</p>
+        <form id="orderForm" action="https://formspree.io/f/mykaageo" method="POST">
+          <div class="form-group">
+            <label for="name" data-i18n="modal-name">Nama</label>
+            <input type="text" name="name" id="name" required>
+          </div>
+          <div class="form-group">
+            <label for="email" data-i18n="modal-email">Email</label>
+            <input type="email" name="email" id="email" required>
+          </div>
+          <div class="form-group">
+            <label for="package" data-i18n="modal-package">Paket</label>
+            <select name="package" id="package">
+              <option value="Basic">Basic — $10</option>
+              <option value="Pro">Pro — $20</option>
+              <option value="Expert">Expert — $50</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="message" data-i18n="modal-message">Pesan (opsional)</label>
+            <textarea name="message" id="message" rows="3"></textarea>
+          </div>
+          <input type="hidden" name="_subject" value="Hermes Agent Order Baru">
+          <input type="hidden" name="_language" value="id">
+          <button type="submit" class="btn btn-submit" id="submitBtn">
+            <span id="submitText" data-i18n="modal-submit">Kirim Pesanan</span>
+            <span id="submitSpinner" class="spinner" style="display:none;"></span>
+          </button>
+        </form>
+      </div>
+      <div class="form-success" id="formSuccess">
+        <i data-lucide="check-circle" style="width:48px;height:48px;color:#3b82f6;"></i>
+        <h4 data-i18n="modal-success-title">Pesanan Terkirim! 🎉</h4>
+        <p data-i18n="modal-success-desc">Kami akan menghubungi kamu via email dalam 1x24 jam. Cek inbox/spam folder ya.</p>
+        <button onclick="closeModal()" class="btn btn-outline" style="margin-top:1rem;" data-i18n="modal-close-btn">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== LUCIDE ICONS =====
+    lucide.createIcons();
+
+    // ===== MODAL FORM =====
+    function openModal(pkg) {
+      document.getElementById('orderModal').classList.add('active');
+      if (pkg) {
+        document.getElementById('package').value = pkg;
+      }
+      document.getElementById('formBody').classList.remove('hidden');
+      document.getElementById('formSuccess').classList.remove('active');
+      document.getElementById('orderForm').reset();
+      if (pkg) document.getElementById('package').value = pkg;
+      document.body.style.overflow = 'hidden';
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('submitText').style.display = 'inline';
+      document.getElementById('submitSpinner').style.display = 'none';
+    }
+
+    function closeModal() {
+      document.getElementById('orderModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Close on Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // ===== FORM SUBMIT =====
+    document.getElementById('orderForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      document.getElementById('submitText').style.display = 'none';
+      document.getElementById('submitSpinner').style.display = 'inline-block';
+
+      try {
+        const formData = new FormData(this);
+        formData.append('_replyto', formData.get('email'));
+        const res = await fetch(this.action, {
+          method: 'POST',
+          body: formData,
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          document.getElementById('formBody').classList.add('hidden');
+          document.getElementById('formSuccess').classList.add('active');
+          lucide.createIcons();
+        } else {
+          throw new Error('Submit failed');
+        }
+      } catch(e) {
+        document.getElementById('submitText').style.display = 'inline';
+        document.getElementById('submitSpinner').style.display = 'none';
+        btn.disabled = false;
+        alert('Gagal kirim. Coba lagi ya.');
+      }
+    });
+
+    // ===== TRANSLATIONS =====
+    const translations = {
+      id: {
+        // Meta
+        "meta-title": "Hermes AI Agent — Satu Command Langsung Jalan",
+        "meta-desc": "Beli file Hermes Agent, satu command langsung jalan. Tersedia 3 paket: Basic, Pro, Expert.",
+        // Nav
+        "nav-how": "Cara Kerja",
+        "nav-features": "Fitur",
+        "nav-pricing": "Harga",
+        "nav-cta": "Beli Sekarang",
+        // Hero
+        "hero-badge": "✦ AI Agent File — One Command",
+        "hero-line1": "Satu Command,",
+        "hero-line2": "Langsung Jalan",
+        "hero-sub": "Anda membeli file Hermes Agent sesuai paket, cukup jalankan satu perintah di terminal. Install, config, siap pakai. Tidak perlu paham coding, tidak perlu setup manual.",
+        "hero-btn-plans": "Lihat Paket",
+        "hero-btn-how": "Cara Kerja",
+        "hero-stat1": "Level Paket",
+        "hero-stat2": "Perintah",
+        "hero-stat3-unit": " menit",
+        "hero-stat3": "Sampai Jalan",
+        // How It Works
+        "how-label": "✦ Cara Kerja",
+        "how-title": "Beli Sekali Langsung Jadi",
+        "how-sub": "File dikirim langsung dalam bentuk ZIP. Tidak perlu jasa instalasi tambahan.",
+        "how-step1-title": "Pilih Paket",
+        "how-step1-desc": "Basic, Pro, atau Expert, sesuai kebutuhan Anda.",
+        "how-step2-title": "Transfer & Konfirm",
+        "how-step2-desc": "Bayar sesuai paket, kirim bukti pembayaran. File akan dikirim sesuai pesanan Anda.",
+        "how-step3-title": "Terima File",
+        "how-step3-desc": "File ZIP dan instruksi dikirim. Anda ekstrak di VPS atau server Anda.",
+        "how-step4-title": "Jalankan 1 Command",
+        "how-step4-desc": "Copy paste satu perintah di terminal, otomatis install dan siap digunakan.",
+        "cmd-label": "⬆ Hanya satu baris, tidak ada langkah lain",
+        // Features
+        "features-label": "✦ Yang Anda Dapatkan",
+        "features-title": "File Lengkap dengan Config Optimal",
+        "features-sub": "File sudah di setup sesuai paket. Tinggal jalankan, langsung berfungsi.",
+        "feat1-title": "File Siap Ekstrak",
+        "feat1-desc": "Satu file ZIP berisi script install, config YAML, skill preset, wallet template.",
+        "feat2-title": "One-Command Installer",
+        "feat2-desc": "Auto-detect OS, install dependensi, setup Hermes, apply config, semua otomatis.",
+        "feat3-title": "Config Pre-Set",
+        "feat3-desc": "Sudah di tuning sesuai paket. Provider cascade, skill router, spend governor langsung aktif.",
+        "feat4-title": "Dokumentasi Minimal",
+        "feat4-desc": "Tidak perlu baca dokumentasi panjang. 1 halaman README cukup untuk memulai.",
+        "feat5-title": "Update Support",
+        "feat5-desc": "Ada versi baru? File akan dikirim ulang, tinggal jalankan script update.",
+        "feat6-title": "Chat Support",
+        "feat6-desc": "Ada kendala? Silakan hubungi kami untuk bantuan debug.",
+        // Pricing
+        "pricing-label": "✦ Pilih Paket",
+        "pricing-title": "Beli File, Jalankan, Selesai",
+        "pricing-sub": "Makin tinggi level, makin lengkap fitur yang aktif dalam 1 command.",
+        "pricing-period": "sekali beli — file dikirim",
+        "pricing-basic-desc": "File installer dan konfigurasi standar.\nLangsung jalan, tinggal pakai.",
+        "pricing-basic-f1": "Hermes Agent installer script",
+        "pricing-basic-f2": "1 provider RPC",
+        "pricing-basic-f3": "Console-only config",
+        "pricing-basic-f4": "1 skill preset",
+        "pricing-basic-f5": "README minimal",
+        "pricing-btn-basic": "Beli Basic",
+        "pricing-pro-desc": "File dengan config pro. Agent nurut,\nterbatas sesuai kebutuhan, cocok untuk power user.",
+        "pricing-pro-f1": "Semua Basic +",
+        "pricing-pro-f2": "Multi-provider cascade",
+        "pricing-pro-f3": "Telegram setup",
+        "pricing-pro-f4": "5 skill preset",
+        "pricing-pro-f6": "Wallet integration (read)",
+        "pricing-pro-f7": "Priority support",
+        "pricing-btn-pro": "Beli Pro",
+        "pricing-expert-desc": "File full obedience.\nAgent sepenuhnya mengikuti Anda.",
+        "pricing-expert-f1": "Semua Pro +",
+        "pricing-expert-f2": "Full provider access",
+        "pricing-expert-f4": "Unlimited skills",
+        "pricing-expert-f5": "Unlimited cron jobs",
+        "pricing-expert-f6": "Wallet ops (sign + TX)",
+        "pricing-expert-f7": "Custom skill dev",
+        "pricing-expert-f8": "White-glove support",
+        "pricing-btn-expert": "Beli Expert",
+        "pricing-note": "Setiap paket berisi file ZIP siap ekstrak. Tidak ada biaya tersembunyi. Tidak perlu setup tambahan.",
+        // CTA
+        "cta-label": "✦ Tertarik?",
+        "cta-title": "Ambil Paket Anda",
+        "cta-sub": "Transfer sesuai paket, konfirmasi ke email. File akan dikirim dalam 1x24 jam.",
+        "cta-btn-plans": "Pilih Paket",
+        // Footer
+        "footer": "© 2026 Hermes Agent — File siap pakai, satu command langsung jalan.",
+        // Modal
+        "modal-title": "Pesan Hermes Agent",
+        "modal-sub": "Isi data kamu, kami akan kirim detail pembayaran dan file.",
+        "modal-name": "Nama",
+        "modal-email": "Email",
+        "modal-package": "Paket",
+        "modal-message": "Pesan (opsional)",
+        "modal-submit": "Kirim Pesanan",
+        "modal-success-title": "Pesanan Terkirim! 🎉",
+        "modal-success-desc": "Kami akan menghubungi kamu via email dalam 1x24 jam. Cek inbox/spam folder ya.",
+        "modal-close-btn": "Tutup",
+        "cta-btn-order": "Pesan Sekarang"
+      },
+
+      en: {
+        "meta-title": "Hermes AI Agent — One Command, Up & Running",
+        "meta-desc": "Buy Hermes Agent files, one command and you're live. 3 tiers: Basic, Pro, Expert.",
+        "nav-how": "How It Works",
+        "nav-features": "Features",
+        "nav-pricing": "Pricing",
+        "nav-cta": "Buy Now",
+        "hero-badge": "✦ AI Agent File — One Command",
+        "hero-line1": "One Command,",
+        "hero-line2": "Up & Running",
+        "hero-sub": "Buy the Hermes Agent file for your tier, run one command in your terminal. Install, configure, ready to use. No coding skills needed, no manual setup.",
+        "hero-btn-plans": "View Plans",
+        "hero-btn-how": "How It Works",
+        "hero-stat1": "Package Levels",
+        "hero-stat2": "Command",
+        "hero-stat3-unit": " min",
+        "hero-stat3": "To Running",
+        "how-label": "✦ How It Works",
+        "how-title": "Buy Once, Done",
+        "how-sub": "Files delivered as ZIP. No installation service needed.",
+        "how-step1-title": "Pick a Plan",
+        "how-step1-desc": "Basic, Pro, or Expert — match your needs.",
+        "how-step2-title": "Pay & Confirm",
+        "how-step2-desc": "Pay for your plan, send payment proof. Your file will be sent as ordered.",
+        "how-step3-title": "Receive Files",
+        "how-step3-desc": "ZIP file and instructions delivered. Extract on your VPS or server.",
+        "how-step4-title": "Run 1 Command",
+        "how-step4-desc": "Copy-paste one command in terminal. Auto-installs and ready to use.",
+        "cmd-label": "⬆ One line only, no extra steps",
+        "features-label": "✦ What You Get",
+        "features-title": "Complete Files with Optimal Config",
+        "features-sub": "Files pre-configured per tier. Just run, works immediately.",
+        "feat1-title": "Ready-to-Extract Files",
+        "feat1-desc": "One ZIP with install script, YAML config, skill presets, wallet template.",
+        "feat2-title": "One-Command Installer",
+        "feat2-desc": "Auto-detect OS, install dependencies, setup Hermes, apply config — all automated.",
+        "feat3-title": "Pre-Set Config",
+        "feat3-desc": "Tuned per tier. Provider cascade, skill router, spend governor all active.",
+        "feat4-title": "Minimal Docs",
+        "feat4-desc": "No long docs to read. One README page is all you need to start.",
+        "feat5-title": "Update Support",
+        "feat5-desc": "New version released? We resend the file, just run the update script.",
+        "feat6-title": "Chat Support",
+        "feat6-desc": "Having issues? Reach out to us for debug assistance.",
+        "pricing-label": "✦ Choose Your Plan",
+        "pricing-title": "Buy Files, Run, Done",
+        "pricing-sub": "Higher tier = more features activated in one command.",
+        "pricing-period": "one-time — files delivered",
+        "pricing-basic-desc": "Standard installer and config.\nReady to go, just use it.",
+        "pricing-basic-f1": "Hermes Agent installer script",
+        "pricing-basic-f2": "1 RPC provider",
+        "pricing-basic-f3": "Console-only config",
+        "pricing-basic-f4": "1 skill preset",
+        "pricing-basic-f5": "Minimal README",
+        "pricing-btn-basic": "Buy Basic",
+        "pricing-pro-desc": "Pro config file. Agent obeys,\nbounded to your needs, perfect for power users.",
+        "pricing-pro-f1": "Everything in Basic +",
+        "pricing-pro-f2": "Multi-provider cascade",
+        "pricing-pro-f3": "Telegram setup",
+        "pricing-pro-f4": "5 skill presets",
+        "pricing-pro-f6": "Wallet integration (read)",
+        "pricing-pro-f7": "Priority support",
+        "pricing-btn-pro": "Buy Pro",
+        "pricing-expert-desc": "Full obedience file.\nAgent fully follows your commands.",
+        "pricing-expert-f1": "Everything in Pro +",
+        "pricing-expert-f2": "Full provider access",
+        "pricing-expert-f4": "Unlimited skills",
+        "pricing-expert-f5": "Unlimited cron jobs",
+        "pricing-expert-f6": "Wallet ops (sign + TX)",
+        "pricing-expert-f7": "Custom skill dev",
+        "pricing-expert-f8": "White-glove support",
+        "pricing-btn-expert": "Buy Expert",
+        "pricing-note": "Each tier comes with a ready-to-extract ZIP. No hidden fees. No extra setup.",
+        "cta-label": "✦ Interested?",
+        "cta-title": "Get Your Package",
+        "cta-sub": "Transfer for your tier, confirm via email. Files delivered within 24 hours.",
+        "cta-btn-plans": "Choose Plan",
+        "footer": "© 2026 Hermes Agent — Ready-to-run files, one command and you're live.",
+        // Modal
+        "modal-title": "Order Hermes Agent",
+        "modal-sub": "Fill in your details and we'll send payment info and files.",
+        "modal-name": "Name",
+        "modal-email": "Email",
+        "modal-package": "Package",
+        "modal-message": "Message (optional)",
+        "modal-submit": "Send Order",
+        "modal-success-title": "Order Sent! 🎉",
+        "modal-success-desc": "We'll reach out via email within 24 hours. Check inbox/spam folder.",
+        "modal-close-btn": "Close",
+        "cta-btn-order": "Order Now"
+      },
+
+      zh: {
+        "meta-title": "Hermes AI 代理 — 一行指令，即刻运行",
+        "meta-desc": "购买 Hermes Agent 文件，一行指令即可运行。提供 3 种套餐：Basic、Pro、Expert。",
+        "nav-how": "工作原理",
+        "nav-features": "功能特性",
+        "nav-pricing": "价格方案",
+        "nav-cta": "立即购买",
+        "hero-badge": "✦ AI 代理文件 — 一键部署",
+        "hero-line1": "一行指令，",
+        "hero-line2": "即刻运行",
+        "hero-sub": "购买对应套餐的 Hermes Agent 文件，在终端中运行一条命令即可完成安装配置，无需编程知识，无需手动设置。",
+        "hero-btn-plans": "查看方案",
+        "hero-btn-how": "工作原理",
+        "hero-stat1": "套餐等级",
+        "hero-stat2": "指令数",
+        "hero-stat3-unit": " 分钟",
+        "hero-stat3": "即可运行",
+        "how-label": "✦ 工作原理",
+        "how-title": "一次购买，即刻完成",
+        "how-sub": "文件以 ZIP 格式直接交付。无需额外安装服务。",
+        "how-step1-title": "选择套餐",
+        "how-step1-desc": "Basic、Pro 或 Expert，按需选择。",
+        "how-step2-title": "支付确认",
+        "how-step2-desc": "按套餐付款，发送支付凭证。我们将按订单发送文件。",
+        "how-step3-title": "接收文件",
+        "how-step3-desc": "ZIP 文件及说明已交付。在您的 VPS 或服务器上解压即可。",
+        "how-step4-title": "运行 1 条指令",
+        "how-step4-desc": "在终端中粘贴一条指令，自动安装并准备就绪。",
+        "cmd-label": "⬆ 仅需一行，无需其他步骤",
+        "features-label": "✦ 您将获得",
+        "features-title": "完整文件与优化配置",
+        "features-sub": "文件已按套餐预配置。只需运行即可立即使用。",
+        "feat1-title": "即解即用文件",
+        "feat1-desc": "一个 ZIP 包含安装脚本、YAML 配置、技能预设、钱包模板。",
+        "feat2-title": "一键安装器",
+        "feat2-desc": "自动检测系统、安装依赖、配置 Hermes、应用设置 — 全自动化。",
+        "feat3-title": "预置配置",
+        "feat3-desc": "按套餐调优。Provider 级联、技能路由、消费限制均已激活。",
+        "feat4-title": "精简文档",
+        "feat4-desc": "无需阅读冗长文档。一页 README 即可开始使用。",
+        "feat5-title": "更新支持",
+        "feat5-desc": "发布新版本？我们会重新发送文件，只需运行更新脚本。",
+        "feat6-title": "在线支持",
+        "feat6-desc": "遇到问题？请联系我们获取调试帮助。",
+        "pricing-label": "✦ 选择方案",
+        "pricing-title": "购买文件，运行即用",
+        "pricing-sub": "套餐等级越高，一条指令激活的功能越丰富。",
+        "pricing-period": "一次性购买 — 文件交付",
+        "pricing-basic-desc": "标准安装程序与配置。\n开箱即用。",
+        "pricing-basic-f1": "Hermes Agent 安装脚本",
+        "pricing-basic-f2": "1 个 RPC 提供商",
+        "pricing-basic-f3": "控制台配置",
+        "pricing-basic-f4": "1 个技能预设",
+        "pricing-basic-f5": "精简版 README",
+        "pricing-btn-basic": "购买 Basic",
+        "pricing-pro-desc": "专业配置文件。\n适合高级用户，功能有边界但不失强大。",
+        "pricing-pro-f1": "包含 Basic 全部功能 +",
+        "pricing-pro-f2": "多提供商级联",
+        "pricing-pro-f3": "Telegram 配置",
+        "pricing-pro-f4": "5 个技能预设",
+        "pricing-pro-f6": "钱包集成（只读）",
+        "pricing-pro-f7": "优先支持",
+        "pricing-btn-pro": "购买 Pro",
+        "pricing-expert-desc": "完全顺从文件。\nAgent 完全听从您的指令。",
+        "pricing-expert-f1": "包含 Pro 全部功能 +",
+        "pricing-expert-f2": "全部提供商访问权限",
+        "pricing-expert-f4": "无限技能",
+        "pricing-expert-f5": "无限定时任务",
+        "pricing-expert-f6": "钱包操作（签名 + 交易）",
+        "pricing-expert-f7": "自定义技能开发",
+        "pricing-expert-f8": "白手套支持",
+        "pricing-btn-expert": "购买 Expert",
+        "pricing-note": "每个套餐包含可直接解压的 ZIP 文件。无隐藏费用。无需额外设置。",
+        "cta-label": "✦ 感兴趣？",
+        "cta-title": "获取您的套餐",
+        "cta-sub": "按套餐转账，通过邮件确认。文件将在 24 小时内交付。",
+        "cta-btn-plans": "选择方案",
+        "footer": "© 2026 Hermes Agent — 即用文件，一条指令即刻运行。",
+        // Modal
+        "modal-title": "订购 Hermes Agent",
+        "modal-sub": "填写信息，我们将发送付款详情和文件。",
+        "modal-name": "姓名",
+        "modal-email": "邮箱",
+        "modal-package": "套餐",
+        "modal-message": "留言（可选）",
+        "modal-submit": "提交订单",
+        "modal-success-title": "订单已发送！🎉",
+        "modal-success-desc": "我们将在24小时内通过邮件联系您。请检查收件箱/垃圾邮件。",
+        "modal-close-btn": "关闭",
+        "cta-btn-order": "立即订购"
+      }
+    };
+
+    // ===== LANGUAGE ENGINE =====
+    let currentLang = localStorage.getItem('hermes-lang') || 'id';
+
+    function translate(lang) {
+      const t = translations[lang];
+      if (!t) return;
+
+      // Update all data-i18n elements
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) {
+          el.innerHTML = t[key];
+        }
+      });
+
+      // Update meta description
+      const metaDesc = document.getElementById('meta-desc');
+      if (metaDesc && t['meta-desc']) {
+        metaDesc.setAttribute('content', t['meta-desc']);
+      }
+
+      // Update lang attribute on html
+      document.documentElement.lang = lang;
+
+      // Update active button
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+
+      // Save preference
+      localStorage.setItem('hermes-lang', lang);
+      currentLang = lang;
+    }
+
+    // ===== LANG SWITCHER EVENTS =====
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const lang = this.getAttribute('data-lang');
+        translate(lang);
+      });
+    });
+
+    // ===== URL LANG PARAM =====
+    (function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlLang = urlParams.get('lang');
+      if (urlLang && translations[urlLang]) {
+        translate(urlLang);
+      } else {
+        // Apply default language
+        translate(currentLang);
+      }
+    })();
+
+    // ===== FALLING STARS =====
+    (function() {
+      const canvas = document.getElementById('particle-canvas');
+      const ctx = canvas.getContext('2d');
+      let w, h;
+
+      function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+      resize();
+      window.addEventListener('resize', resize);
+
+      // Background bintang tetap (kedip-kedip)
+      const bgStars = [];
+      function initBgStars() {
+        bgStars.length = 0;
+        const count = Math.min(Math.floor((w * h) / 4000), 180);
+        for (let i = 0; i < count; i++) {
+          bgStars.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            size: 0.3 + Math.random() * 1.2,
+            baseOp: 0.15 + Math.random() * 0.4,
+            phase: Math.random() * Math.PI * 2,
+            speed: 0.003 + Math.random() * 0.015,
+            hue: 200 + Math.random() * 60
+          });
+        }
+      }
+      initBgStars();
+
+      // Shooting stars
+      const MAX = 10;
+      const stars = [];
+
+      function spawn() {
+        if (stars.length >= MAX) return;
+        const angle = Math.PI / 3 + (Math.random() - 0.5) * 0.5;
+        const speed = 4 + Math.random() * 6;
+        const colors = [
+          { hue: 210, sat: 90 },  // blue
+          { hue: 190, sat: 85 },  // cyan
+          { hue: 240, sat: 80 },  // indigo
+          { hue: 0, sat: 70 },    // white
+          { hue: 270, sat: 75 }   // purple
+        ];
+        const c = colors[Math.floor(Math.random() * colors.length)];
+        stars.push({
+          x: Math.random() * w * 1.0,
+          y: -20 - Math.random() * 80,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 0.01,
+          maxLife: 0.6 + Math.random() * 0.5,
+          width: 1.5 + Math.random() * 2.0,
+          opacity: 0.5 + Math.random() * 0.4,
+          hue: c.hue,
+          sat: c.sat
+        });
+      }
+
+      function update() {
+        for (let i = stars.length - 1; i >= 0; i--) {
+          const s = stars[i];
+          s.x += s.vx;
+          s.y += s.vy;
+          s.life += 0.01;
+          if (s.life > s.maxLife || s.y > h + 80 || s.x > w + 80) {
+            stars.splice(i, 1);
+          }
+        }
+        // Spawn lebih agresif
+        if (Math.random() < 0.04) spawn();
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+
+        // 1. Background bintang kedip
+        for (const b of bgStars) {
+          const pulse = 0.6 + 0.4 * Math.sin(Date.now() * b.speed + b.phase);
+          const a = b.baseOp * pulse;
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${b.hue}, 60%, 75%, ${a})`;
+          ctx.fill();
+
+          // Glow halus untuk bintang agak besar
+          if (b.size > 1.0) {
+            const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.size * 4);
+            g.addColorStop(0, `hsla(${b.hue}, 70%, 80%, ${a * 0.15})`);
+            g.addColorStop(1, 'hsla(0, 0%, 0%, 0)');
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, b.size * 4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        // 2. Shooting stars
+        for (const s of stars) {
+          const p = Math.min(s.life / s.maxLife, 1);
+          const fadeIn = p < 0.08 ? p / 0.08 : 1;
+          const fadeOut = p > 0.75 ? (1 - p) / 0.25 : 1;
+          const a = s.opacity * Math.max(0, fadeIn * fadeOut);
+          const trail = Math.min(140, s.vy * 18);
+          const len = Math.hypot(s.vx, s.vy);
+          const tx = s.x - (s.vx / len) * trail;
+          const ty = s.y - (s.vy / len) * trail;
+
+          // Trail gradient
+          const grad = ctx.createLinearGradient(s.x, s.y, tx, ty);
+          grad.addColorStop(0, `hsla(${s.hue}, ${s.sat}%, 92%, ${a * 0.95})`);
+          grad.addColorStop(0.15, `hsla(${s.hue}, ${s.sat}%, 78%, ${a * 0.5})`);
+          grad.addColorStop(0.4, `hsla(${s.hue}, ${s.sat - 10}%, 60%, ${a * 0.2})`);
+          grad.addColorStop(1, `hsla(${s.hue}, ${s.sat - 20}%, 40%, 0)`);
+
+          ctx.beginPath();
+          ctx.moveTo(s.x, s.y);
+          ctx.lineTo(tx, ty);
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = s.width;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+
+          // Head glow
+          const g2 = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.width * 5);
+          g2.addColorStop(0, `hsla(${s.hue}, ${s.sat}%, 95%, ${a * 0.6})`);
+          g2.addColorStop(0.3, `hsla(${s.hue}, ${s.sat}%, 80%, ${a * 0.2})`);
+          g2.addColorStop(1, 'hsla(0, 0%, 0%, 0)');
+          ctx.fillStyle = g2;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.width * 5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      function animate() {
+        update();
+        draw();
+        requestAnimationFrame(animate);
+      }
+
+      // Spawn awal
+      for (let i = 0; i < 3; i++) setTimeout(spawn, i * 200);
+      animate();
+
+      // Resize background stars
+      window.addEventListener('resize', () => {
+        setTimeout(initBgStars, 300);
+      });
+    })();
+
+    // ===== SCROLL REVEAL =====
+    (function() {
+      function observe(sel, rm='-60px') {
+        const els=document.querySelectorAll(sel); if(!els.length) return;
+        const o=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');o.unobserve(e.target);}});},{rootMargin:rm});
+        els.forEach(el=>o.observe(el));
+      }
+      observe('.reveal'); observe('.reveal-scale');
+    })();
+
+    // ===== NAVBAR =====
+    (function() {
+      const nav=document.getElementById('navbar');
+      window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>40);});
+    })();
+  </script>
+</body>
+</html>
